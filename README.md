@@ -26,4 +26,4 @@ Rastgele parola girin
 
 ![Veritabanı](atacks2.png)
 
-![Terminal](atacks3.png)
+![Terminal](atack3.png)
