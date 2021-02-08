@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: db
+    volumes:
+      - ./db/:/var/lib/mysql
+      - ./logs.sql:/docker-entrypoint-initdb.d/logs.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: OOU1tmUdCEt3kobxROOTOOU1tmUdCEt3kobx
+      MYSQL_DATABASE: logs
+      MYSQL_USER: logs
+      MYSQL_PASSWORD: OOU1tmUdCEt3kobx
+  web:
+    build: .
+    container_name: php
+    depends_on:
+      - db
+    volumes:
+      - ./php/:/var/www/html/
+    ports:
+      - "8100:80" 
+  #phpmyadmin:
+  #  depends_on:
+  #    - db
+  #  image: phpmyadmin/phpmyadmin
+  #  container_name: phpmyadmin
+  #  restart: always
+  #  ports:
+  #    - '8888:80'
+  #  environment:
+  #    PMA_HOST: db

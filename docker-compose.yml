@@ -1,0 +1,85 @@
+version: '3.7'
+
+services:
+
+  #INTERNAL PART
+  shell:
+    privileged: true
+    build: ./nsjail/
+    hostname: shell
+    container_name: shell
+    networks:
+      - internetErisimiYok
+    volumes:
+      - ./config/:/root/config
+    command: bash -c "echo 'a'> /tmp/a; nsjail --user 1000 --group 1000  --disable_clone_newcgroup --disable_clone_newnet  --config /root/config/bash-with-fake-geteuid.cfg  "
+    ports:
+      - "9999:9000"
+
+  python:
+    build: .
+    hostname: python
+    container_name: python
+    command: python app.py
+    networks:
+      - icNetwork
+      - internetErisimiYok 
+    volumes:
+      - ./app.py:/code/app.py
+      - ./IP2LOCATION-LITE-DB5.BIN:/code/IP2LOCATION-LITE-DB5.BIN 
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 22
+        target: 22
+    depends_on:
+      - db
+      - shell
+
+#FRONTEND PART
+  db:
+    image: mysql:5.7
+    hostname: veritabani
+    container_name: veritabani
+    networks:
+      - icNetwork
+    volumes:
+      - ./frontend/db/:/var/lib/mysql
+      - ./frontend/logs.sql:/docker-entrypoint-initdb.d/logs.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: OOU1tmUdCEt3kobxROOTOOU1tmUdCEt3kobx
+      MYSQL_DATABASE: logs
+      MYSQL_USER: logs
+      MYSQL_PASSWORD: OOU1tmUdCEt3kobx
+  web:
+    build: ./frontend/
+    hostname: php
+    container_name: php
+    networks:
+      - icNetwork
+    depends_on:
+      - db
+    volumes:
+      - ./frontend/php/:/var/www/html/
+    ports:
+      - "8100:80" # YOU CAN CHANGE THIS PORT.
+
+#FOR SECURITY REASON #
+#  phpmyadmin:
+#    depends_on:
+#      - db
+#    image: phpmyadmin/phpmyadmin
+#    networks:
+#      - icNetwork
+#    container_name: phpmyadmin
+#    restart: always
+#    ports:
+#      - '8888:80'
+#    environment:
+#      PMA_HOST: db
+
+
+networks:
+  internetErisimiYok:
+    internal: true
+  icNetwork: 
